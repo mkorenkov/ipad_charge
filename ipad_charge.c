@@ -9,9 +9,10 @@
 #define VERSION "1.1"
 
 #define CTRL_OUT	(LIBUSB_REQUEST_TYPE_VENDOR | LIBUSB_ENDPOINT_OUT)
-#define VENDOR_APPLE	0x05ac
-#define PRODUCT_IPAD1	0x129a
-#define PRODUCT_IPAD2	0x129f
+#define VENDOR_APPLE		0x05ac
+#define PRODUCT_IPAD1		0x129a
+#define PRODUCT_IPAD2		0x129f
+#define PRODUCT_IPAD2_3G	0x12a2
 
 int set_charging_mode(libusb_device *dev, bool enable) {
 	int ret;
@@ -129,7 +130,7 @@ int main(int argc, char *argv[]) {
 				fprintf(stderr, "ipad_charge: failed to get device descriptor: error %d\n", ret);
 				continue;
 			}
-			if (desc.idVendor == VENDOR_APPLE && (desc.idProduct == PRODUCT_IPAD1 || desc.idProduct == PRODUCT_IPAD2)) {
+			if (desc.idVendor == VENDOR_APPLE && (desc.idProduct == PRODUCT_IPAD1 || desc.idProduct == PRODUCT_IPAD2 || desc.idProduct == PRODUCT_IPAD2_3G)) {
 				if (set_charging_mode(dev, enable) < 0)
 					fprintf(stderr, "ipad_charge: error setting charge mode\n");
 				else

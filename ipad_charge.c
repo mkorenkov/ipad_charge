@@ -14,6 +14,14 @@
 #define PRODUCT_IPAD2		0x129f
 #define PRODUCT_IPAD2_3G	0x12a2
 
+#define PRODUCT_IPOD_TOUCH_2G 0x1293
+#define PRODUCT_IPHONE_3GS 0x1294
+#define PRODUCT_IPHONE_4_GSM 0x1297
+#define PRODUCT_IPOD_TOUCH_3G 0x1299
+#define PRODUCT_IPHONE_4_CDMA 0x129c
+#define PRODUCT_IPOD_TOUCH_4G 0x129e
+#define PRODUCT_IPHONE_4S 0x12a0
+
 int set_charging_mode(libusb_device *dev, bool enable) {
 	int ret;
 	struct libusb_device_handle *dev_handle;

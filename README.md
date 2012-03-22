@@ -1,5 +1,5 @@
-apple charge: 
-===========
+Apple charger utility 
+======================
 USB charging control utility used to enable/disable charging of an Apple device connected to USB port.
 
 Supported devices:

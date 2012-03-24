@@ -23,8 +23,9 @@ Wiki:
 [https://github.com/mkorenkov/ipad_charge/wiki](https://github.com/mkorenkov/ipad_charge/wiki)
 
 
-Authors:
+Authors & Maintainers:
 -------
-Ondrej Zary from Rainbow-Software
-Max Korenkov
+* Ondrej Zary
+* Max Korenkov
+* Pranava Swaroop
 

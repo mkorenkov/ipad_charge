@@ -1,6 +1,18 @@
-ipad_charge: 
-===========
-iPad / iPad2 USB charging control utility used to enable/disable charging of an iPad connected to USB port.
+Apple charger utility 
+======================
+USB charging control utility used to enable/disable charging of an Apple device connected to USB port.
+
+Supported devices:
+------------------
+* iPad
+* iPad2
+* iPad3
+* iPod Touch 2G
+* iPod Touch 3G
+* iPod Touch 4G
+* iPhone 3GS
+* iPhone 4
+* iPhone 4S
 
 Requirements:
 -------------
@@ -11,7 +23,9 @@ Wiki:
 [https://github.com/mkorenkov/ipad_charge/wiki](https://github.com/mkorenkov/ipad_charge/wiki)
 
 
-Authors:
+Authors & Maintainers:
 -------
-Ondrej Zary from Rainbow-Software
+* Ondrej Zary
+* Max Korenkov
+* Pranava Swaroop
 

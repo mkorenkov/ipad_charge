@@ -2,6 +2,7 @@ ENV{DEVTYPE}=="usb_device", ACTION=="add", SUBSYSTEM=="usb", ATTR{idVendor}=="05
 ENV{DEVTYPE}=="usb_device", ACTION=="add", SUBSYSTEM=="usb", ATTR{idVendor}=="05ac", ATTR{idProduct}=="129a", RUN+="/usr/bin/ipad_charge"
 ENV{DEVTYPE}=="usb_device", ACTION=="add", SUBSYSTEM=="usb", ATTR{idVendor}=="05ac", ATTR{idProduct}=="12a2", RUN+="/usr/bin/ipad_charge"
 ENV{DEVTYPE}=="usb_device", ACTION=="add", SUBSYSTEM=="usb", ATTR{idVendor}=="05ac", ATTR{idProduct}=="12a4", RUN+="/usr/bin/ipad_charge"
+ENV{DEVTYPE}=="usb_device", ACTION=="add", SUBSYSTEM=="usb", ATTR{idVendor}=="05ac", ATTR{idProduct}=="12a6", RUN+="/usr/bin/ipad_charge"
 ENV{DEVTYPE}=="usb_device", ACTION=="add", SUBSYSTEM=="usb", ATTR{idVendor}=="05ac", ATTR{idProduct}=="1293", RUN+="/usr/bin/ipad_charge"
 ENV{DEVTYPE}=="usb_device", ACTION=="add", SUBSYSTEM=="usb", ATTR{idVendor}=="05ac", ATTR{idProduct}=="1294", RUN+="/usr/bin/ipad_charge"
 ENV{DEVTYPE}=="usb_device", ACTION=="add", SUBSYSTEM=="usb", ATTR{idVendor}=="05ac", ATTR{idProduct}=="1297", RUN+="/usr/bin/ipad_charge"
@@ -9,5 +10,4 @@ ENV{DEVTYPE}=="usb_device", ACTION=="add", SUBSYSTEM=="usb", ATTR{idVendor}=="05
 ENV{DEVTYPE}=="usb_device", ACTION=="add", SUBSYSTEM=="usb", ATTR{idVendor}=="05ac", ATTR{idProduct}=="129c", RUN+="/usr/bin/ipad_charge"
 ENV{DEVTYPE}=="usb_device", ACTION=="add", SUBSYSTEM=="usb", ATTR{idVendor}=="05ac", ATTR{idProduct}=="129e", RUN+="/usr/bin/ipad_charge"
 ENV{DEVTYPE}=="usb_device", ACTION=="add", SUBSYSTEM=="usb", ATTR{idVendor}=="05ac", ATTR{idProduct}=="12a0", RUN+="/usr/bin/ipad_charge"
-
 

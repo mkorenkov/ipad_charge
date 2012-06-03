@@ -1,0 +1,10 @@
+Package: ipad-charge
+Priority: extra
+Section: ipad-charge
+Installed-Size: 80
+Maintainer: Max Korenkov <mkorenkov@gmail.com>
+Architecture: amd64
+Version: 20120603-1
+Depends: libusb-1.0-0, libusb-1.0-0-dev
+Provides: ipad-charge
+Description: Enables USB charging for Apple devices, e.g. iPad.

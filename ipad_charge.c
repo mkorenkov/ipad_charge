@@ -13,6 +13,7 @@
 #define PRODUCT_IPAD1		0x129a
 #define PRODUCT_IPAD2		0x129f
 #define PRODUCT_IPAD2_3G	0x12a2
+#define PRODUCT_IPAD2_3GV	0x12a3
 #define PRODUCT_IPAD3	    0x12a4
 #define PRODUCT_IPAD3_4G    0x12a6
 
@@ -143,6 +144,7 @@ int main(int argc, char *argv[]) {
 			if (desc.idVendor == VENDOR_APPLE && (desc.idProduct == PRODUCT_IPAD1
 					|| desc.idProduct == PRODUCT_IPAD2
 					|| desc.idProduct == PRODUCT_IPAD2_3G
+					|| desc.idProduct == PRODUCT_IPAD2_3GV
 					|| desc.idProduct == PRODUCT_IPAD3
 					|| desc.idProduct == PRODUCT_IPAD3_4G
 					|| desc.idProduct == PRODUCT_IPOD_TOUCH_2G

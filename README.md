@@ -22,6 +22,11 @@ Wiki:
 -----
 [https://github.com/mkorenkov/ipad_charge/wiki](https://github.com/mkorenkov/ipad_charge/wiki)
 
+libusb-1.0
+----------
+[git://git.libusb.org/libusb.git](Official Repository)
+
+If you use Fedora 17 x86_64, just compile libusb-1.0 from official repository then you will be able to `make` ipad_charge.
 
 Authors & Maintainers:
 -------

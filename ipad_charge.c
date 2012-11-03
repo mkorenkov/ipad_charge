@@ -16,6 +16,7 @@
 #define PRODUCT_IPAD2_3GV	0x12a3
 #define PRODUCT_IPAD3	    0x12a4
 #define PRODUCT_IPAD3_4G    0x12a6
+#define PRODUCT_IPAD4       0x12ab
 
 #define PRODUCT_IPOD_TOUCH_2G 0x1293
 #define PRODUCT_IPHONE_3GS 0x1294
@@ -153,7 +154,8 @@ int main(int argc, char *argv[]) {
 					|| desc.idProduct == PRODUCT_IPOD_TOUCH_3G
 					|| desc.idProduct == PRODUCT_IPHONE_4_CDMA
 					|| desc.idProduct == PRODUCT_IPOD_TOUCH_4G
-					|| desc.idProduct == PRODUCT_IPHONE_4S)) {
+					|| desc.idProduct == PRODUCT_IPHONE_4S
+					|| desc.idProduct == PRODUCT_IPAD4)) {
 
 				if (set_charging_mode(dev, enable) < 0)
 					fprintf(stderr, "ipad_charge: error setting charge mode\n");

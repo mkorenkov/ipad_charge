@@ -7,12 +7,14 @@ Supported devices:
 * iPad
 * iPad2
 * iPad3
+* iPad4
 * iPod Touch 2G
 * iPod Touch 3G
 * iPod Touch 4G
 * iPhone 3GS
 * iPhone 4
 * iPhone 4S
+* iPhone 5
 
 Requirements:
 -------------

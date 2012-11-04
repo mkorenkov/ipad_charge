@@ -25,6 +25,7 @@
 #define PRODUCT_IPHONE_4_CDMA 0x129c
 #define PRODUCT_IPOD_TOUCH_4G 0x129e
 #define PRODUCT_IPHONE_4S 0x12a0
+#define PRODUCT_IPHONE_5 0x12a8
 
 int set_charging_mode(libusb_device *dev, bool enable) {
 	int ret;
@@ -155,6 +156,7 @@ int main(int argc, char *argv[]) {
 					|| desc.idProduct == PRODUCT_IPHONE_4_CDMA
 					|| desc.idProduct == PRODUCT_IPOD_TOUCH_4G
 					|| desc.idProduct == PRODUCT_IPHONE_4S
+					|| desc.idProduct == PRODUCT_IPHONE_5
 					|| desc.idProduct == PRODUCT_IPAD4)) {
 
 				if (set_charging_mode(dev, enable) < 0)

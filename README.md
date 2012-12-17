@@ -8,6 +8,7 @@ Supported devices:
 * iPad2
 * iPad3
 * iPad4
+* iPad Mini
 * iPod Touch 2G
 * iPod Touch 3G
 * iPod Touch 4G

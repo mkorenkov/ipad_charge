@@ -31,6 +31,11 @@ libusb-1.0
 
 If you use Fedora 17 x86_64, just compile libusb-1.0 from official repository then you will be able to `make` ipad_charge.
 
+For Fedora 18 i686 or x86_64, you will need libusbx devel installed:
+```
+sudo yum install libusbx-devel libusbx-devel.i686
+```
+
 Authors & Maintainers:
 -------
 * Ondrej Zary

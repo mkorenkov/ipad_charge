@@ -96,6 +96,10 @@ void version() {
 int main(int argc, char *argv[]) {
 	int ret, devnum = 0, busnum = 0;
 	bool enable = 1;
+	char *subsys;
+	libusb_device **devs;
+	libusb_device *dev;
+	int i = 0, count = 0;
 
 	while (1) {
                 struct option long_options[] = {
@@ -123,39 +127,38 @@ int main(int argc, char *argv[]) {
                 }
         }
 
-	if (getenv("BUSNUM") && getenv("DEVNUM")) {
-		busnum = atoi(getenv("BUSNUM"));
-		devnum = atoi(getenv("DEVNUM"));
-	}
-
 	if (libusb_init(NULL) < 0) {
 		ERROR("failed to initialise libusb\n");
 		exit(1);
 	}
 
-	libusb_device **devs;
 	if (libusb_get_device_list(NULL, &devs) < 0) {
 		ERROR("unable to enumerate USB devices\n");
 		ret = 2;
 		goto out_exit;
 	}
 
-	libusb_device *dev;
-	int i = 0, count = 0;
-	/* if BUSNUM and DEVNUM were specified (by udev), find device by address */
-	if (busnum && devnum) {
+	subsys = getenv("SUBSYSTEM");
+	/* if called by hotplug system */
+	if (subsys && !strcmp(subsys, "usb")) {
+		if (getenv("BUSNUM") && getenv("DEVNUM")) {
+			busnum = atoi(getenv("BUSNUM"));
+			devnum = atoi(getenv("DEVNUM"));
+		}
+
 		while ((dev = devs[i++]) != NULL) {
 			if (libusb_get_bus_number(dev) == busnum &&
-			    libusb_get_device_address(dev) == devnum) {
-			    	if (set_charging_mode(dev, enable) < 0)
-			    		ERROR("error setting charge mode\n");
+					libusb_get_device_address(dev) == devnum) {
+				if (set_charging_mode(dev, enable) < 0)
+					ERROR("error setting charge mode\n");
 				else
 					count++;
 				break;
 			}
 		}
+	}
 	/* otherwise apply to all devices */
-	} else {
+	else {
 		while ((dev = devs[i++]) != NULL) {
 			struct libusb_device_descriptor desc;
 			if ((ret = libusb_get_device_descriptor(dev, &desc)) < 0) {

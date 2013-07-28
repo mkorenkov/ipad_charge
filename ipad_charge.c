@@ -10,40 +10,58 @@
 
 #define CTRL_OUT	(LIBUSB_REQUEST_TYPE_VENDOR | LIBUSB_ENDPOINT_OUT)
 #define VENDOR_APPLE		0x05ac
-#define PRODUCT_IPAD1		0x129a
-#define PRODUCT_IPAD2		0x129f
-#define PRODUCT_IPAD2_3G	0x12a2
-#define PRODUCT_IPAD2_4		0x12a9
-#define PRODUCT_IPAD2_3GV	0x12a3
-#define PRODUCT_IPAD3	    0x12a4
-#define PRODUCT_IPAD3_4G    0x12a6
-#define PRODUCT_IPAD4       0x12ab
+const uint16_t PRODUCT_APPLE[] = {
+	0x129a,		/* PRODUCT_IPAD1 */
+	0x129f,		/* PRODUCT_IPAD2 */
+	0x12a2,		/* PRODUCT_IPAD2_3G */
+	0x12a9,		/* PRODUCT_IPAD2_4 */
+	0x12a3,		/* PRODUCT_IPAD2_3GV */
+	0x12a4,		/* PRODUCT_IPAD3 */
+	0x12a6,		/* PRODUCT_IPAD3_4G */
+	0x12ab,		/* PRODUCT_IPAD4 */
 
-#define PRODUCT_IPOD_TOUCH_2G 0x1293
-#define PRODUCT_IPHONE_3GS 0x1294
-#define PRODUCT_IPHONE_4_GSM 0x1297
-#define PRODUCT_IPOD_TOUCH_3G 0x1299
-#define PRODUCT_IPHONE_4_CDMA 0x129c
-#define PRODUCT_IPOD_TOUCH_4G 0x129e
-#define PRODUCT_IPHONE_4S 0x12a0
-#define PRODUCT_IPHONE_5 0x12a8
+	0x1293,		/* PRODUCT_IPOD_TOUCH_2G */
+	0x1294,		/* PRODUCT_IPHONE_3GS */
+	0x1297,		/* PRODUCT_IPHONE_4_GSM */
+	0x1299,		/* PRODUCT_IPOD_TOUCH_3G */
+	0x129c,		/* PRODUCT_IPHONE_4_CDMA */
+	0x129e,		/* PRODUCT_IPOD_TOUCH_4G */
+	0x12a0,		/* PRODUCT_IPHONE_4S */
+	0x12a8,		/* PRODUCT_IPHONE_5 */
+};
+
+#define ERROR(fmt, ...)	do {	\
+	fprintf(stderr, "ipad_charge: %s#%d: " fmt, __func__, __LINE__, ## __VA_ARGS__); \
+} while (0)
+
+int is_apple_product(uint16_t productId) {
+	unsigned int i;
+
+	for (i = 0; i < sizeof(PRODUCT_APPLE)/sizeof(PRODUCT_APPLE[0]); i++) {
+		if (productId == PRODUCT_APPLE[i]) {
+			return 1;
+		}
+	}
+
+	return 0;
+}
 
 int set_charging_mode(libusb_device *dev, bool enable) {
 	int ret;
 	struct libusb_device_handle *dev_handle;
 
 	if ((ret = libusb_open(dev, &dev_handle)) < 0) {
-		fprintf(stderr, "ipad_charge: unable to open device: error %d\n", ret);
+		ERROR("unable to open device: error %d\n", ret);
 		return ret;
 	}
 
 	if ((ret = libusb_claim_interface(dev_handle, 0)) < 0) {
-		fprintf(stderr, "ipad_charge: unable to claim interface: error %d\n", ret);
+		ERROR("unable to claim interface: error %d\n", ret);
 		goto out_close;
 	}
 
 	if ((ret = libusb_control_transfer(dev_handle, CTRL_OUT, 0x40, 0x6400, enable ? 0x6400 : 0, NULL, 0, 2000)) < 0) {
-		fprintf(stderr, "ipad_charge: unable to send command: error %d\n", ret);
+		ERROR("unable to send command: error %d\n", ret);
 		goto out_release;
 	}
 	
@@ -78,6 +96,10 @@ void version() {
 int main(int argc, char *argv[]) {
 	int ret, devnum = 0, busnum = 0;
 	bool enable = 1;
+	char *subsys;
+	libusb_device **devs;
+	libusb_device *dev;
+	int i = 0, count = 0;
 
 	while (1) {
                 struct option long_options[] = {
@@ -100,69 +122,52 @@ int main(int argc, char *argv[]) {
                         version();
                         exit(0);
                 default:
-                        fprintf(stderr, "Try '%s --help' for more information.\n", argv[0]);
+                        ERROR("Try '%s --help' for more information.\n", argv[0]);
                         exit(100);
                 }
         }
 
-	if (getenv("BUSNUM") && getenv("DEVNUM")) {
-		busnum = atoi(getenv("BUSNUM"));
-		devnum = atoi(getenv("DEVNUM"));
-	}
-
 	if (libusb_init(NULL) < 0) {
-		fprintf(stderr, "ipad_charge: failed to initialise libusb\n");
+		ERROR("failed to initialise libusb\n");
 		exit(1);
 	}
 
-	libusb_device **devs;
 	if (libusb_get_device_list(NULL, &devs) < 0) {
-		fprintf(stderr, "ipad_charge: unable to enumerate USB devices\n");
+		ERROR("unable to enumerate USB devices\n");
 		ret = 2;
 		goto out_exit;
 	}
 
-	libusb_device *dev;
-	int i = 0, count = 0;
-	/* if BUSNUM and DEVNUM were specified (by udev), find device by address */
-	if (busnum && devnum) {
+	subsys = getenv("SUBSYSTEM");
+	/* if called by hotplug system */
+	if (subsys && !strcmp(subsys, "usb")) {
+		if (getenv("BUSNUM") && getenv("DEVNUM")) {
+			busnum = atoi(getenv("BUSNUM"));
+			devnum = atoi(getenv("DEVNUM"));
+		}
+
 		while ((dev = devs[i++]) != NULL) {
 			if (libusb_get_bus_number(dev) == busnum &&
-			    libusb_get_device_address(dev) == devnum) {
-			    	if (set_charging_mode(dev, enable) < 0)
-			    		fprintf(stderr, "ipad_charge: error setting charge mode\n");
+					libusb_get_device_address(dev) == devnum) {
+				if (set_charging_mode(dev, enable) < 0)
+					ERROR("error setting charge mode\n");
 				else
 					count++;
 				break;
 			}
 		}
+	}
 	/* otherwise apply to all devices */
-	} else {
+	else {
 		while ((dev = devs[i++]) != NULL) {
 			struct libusb_device_descriptor desc;
 			if ((ret = libusb_get_device_descriptor(dev, &desc)) < 0) {
-				fprintf(stderr, "ipad_charge: failed to get device descriptor: error %d\n", ret);
+				ERROR("failed to get device descriptor: error %d\n", ret);
 				continue;
 			}
-			if (desc.idVendor == VENDOR_APPLE && (desc.idProduct == PRODUCT_IPAD1
-					|| desc.idProduct == PRODUCT_IPAD2
-					|| desc.idProduct == PRODUCT_IPAD2_3G
-					|| desc.idProduct == PRODUCT_IPAD2_4
-					|| desc.idProduct == PRODUCT_IPAD2_3GV
-					|| desc.idProduct == PRODUCT_IPAD3
-					|| desc.idProduct == PRODUCT_IPAD3_4G
-					|| desc.idProduct == PRODUCT_IPOD_TOUCH_2G
-					|| desc.idProduct == PRODUCT_IPHONE_3GS
-					|| desc.idProduct == PRODUCT_IPHONE_4_GSM
-					|| desc.idProduct == PRODUCT_IPOD_TOUCH_3G
-					|| desc.idProduct == PRODUCT_IPHONE_4_CDMA
-					|| desc.idProduct == PRODUCT_IPOD_TOUCH_4G
-					|| desc.idProduct == PRODUCT_IPHONE_4S
-					|| desc.idProduct == PRODUCT_IPHONE_5
-					|| desc.idProduct == PRODUCT_IPAD4)) {
-
+			if (desc.idVendor == VENDOR_APPLE && is_apple_product(desc.idProduct)) {
 				if (set_charging_mode(dev, enable) < 0)
-					fprintf(stderr, "ipad_charge: error setting charge mode\n");
+					ERROR("error setting charge mode\n");
 				else
 					count++;
 			}
@@ -170,7 +175,7 @@ int main(int argc, char *argv[]) {
 	}
 
 	if (count < 1) {
-		fprintf(stderr, "ipad_charge: no such device or an error occured\n");
+		ERROR("no such device or an error occured\n");
 		ret = 3;
 	} else
 		ret = 0;

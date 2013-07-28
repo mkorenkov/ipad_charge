@@ -10,27 +10,41 @@
 
 #define CTRL_OUT	(LIBUSB_REQUEST_TYPE_VENDOR | LIBUSB_ENDPOINT_OUT)
 #define VENDOR_APPLE		0x05ac
-#define PRODUCT_IPAD1		0x129a
-#define PRODUCT_IPAD2		0x129f
-#define PRODUCT_IPAD2_3G	0x12a2
-#define PRODUCT_IPAD2_4		0x12a9
-#define PRODUCT_IPAD2_3GV	0x12a3
-#define PRODUCT_IPAD3	    0x12a4
-#define PRODUCT_IPAD3_4G    0x12a6
-#define PRODUCT_IPAD4       0x12ab
+const uint16_t PRODUCT_APPLE[] = {
+	0x129a,		/* PRODUCT_IPAD1 */
+	0x129f,		/* PRODUCT_IPAD2 */
+	0x12a2,		/* PRODUCT_IPAD2_3G */
+	0x12a9,		/* PRODUCT_IPAD2_4 */
+	0x12a3,		/* PRODUCT_IPAD2_3GV */
+	0x12a4,		/* PRODUCT_IPAD3 */
+	0x12a6,		/* PRODUCT_IPAD3_4G */
+	0x12ab,		/* PRODUCT_IPAD4 */
 
-#define PRODUCT_IPOD_TOUCH_2G 0x1293
-#define PRODUCT_IPHONE_3GS 0x1294
-#define PRODUCT_IPHONE_4_GSM 0x1297
-#define PRODUCT_IPOD_TOUCH_3G 0x1299
-#define PRODUCT_IPHONE_4_CDMA 0x129c
-#define PRODUCT_IPOD_TOUCH_4G 0x129e
-#define PRODUCT_IPHONE_4S 0x12a0
-#define PRODUCT_IPHONE_5 0x12a8
+	0x1293,		/* PRODUCT_IPOD_TOUCH_2G */
+	0x1294,		/* PRODUCT_IPHONE_3GS */
+	0x1297,		/* PRODUCT_IPHONE_4_GSM */
+	0x1299,		/* PRODUCT_IPOD_TOUCH_3G */
+	0x129c,		/* PRODUCT_IPHONE_4_CDMA */
+	0x129e,		/* PRODUCT_IPOD_TOUCH_4G */
+	0x12a0,		/* PRODUCT_IPHONE_4S */
+	0x12a8,		/* PRODUCT_IPHONE_5 */
+};
 
 #define ERROR(fmt, ...)	do {	\
 	fprintf(stderr, "ipad_charge: %s#%d: " fmt, __func__, __LINE__, ## __VA_ARGS__); \
 } while (0)
+
+int is_apple_product(uint16_t productId) {
+	unsigned int i;
+
+	for (i = 0; i < sizeof(PRODUCT_APPLE)/sizeof(PRODUCT_APPLE[0]); i++) {
+		if (productId == PRODUCT_APPLE[i]) {
+			return 1;
+		}
+	}
+
+	return 0;
+}
 
 int set_charging_mode(libusb_device *dev, bool enable) {
 	int ret;
@@ -148,23 +162,7 @@ int main(int argc, char *argv[]) {
 				ERROR("failed to get device descriptor: error %d\n", ret);
 				continue;
 			}
-			if (desc.idVendor == VENDOR_APPLE && (desc.idProduct == PRODUCT_IPAD1
-					|| desc.idProduct == PRODUCT_IPAD2
-					|| desc.idProduct == PRODUCT_IPAD2_3G
-					|| desc.idProduct == PRODUCT_IPAD2_4
-					|| desc.idProduct == PRODUCT_IPAD2_3GV
-					|| desc.idProduct == PRODUCT_IPAD3
-					|| desc.idProduct == PRODUCT_IPAD3_4G
-					|| desc.idProduct == PRODUCT_IPOD_TOUCH_2G
-					|| desc.idProduct == PRODUCT_IPHONE_3GS
-					|| desc.idProduct == PRODUCT_IPHONE_4_GSM
-					|| desc.idProduct == PRODUCT_IPOD_TOUCH_3G
-					|| desc.idProduct == PRODUCT_IPHONE_4_CDMA
-					|| desc.idProduct == PRODUCT_IPOD_TOUCH_4G
-					|| desc.idProduct == PRODUCT_IPHONE_4S
-					|| desc.idProduct == PRODUCT_IPHONE_5
-					|| desc.idProduct == PRODUCT_IPAD4)) {
-
+			if (desc.idVendor == VENDOR_APPLE && is_apple_product(desc.idProduct)) {
 				if (set_charging_mode(dev, enable) < 0)
 					ERROR("error setting charge mode\n");
 				else

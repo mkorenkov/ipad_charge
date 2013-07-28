@@ -1,1 +1,2 @@
 ENV{DEVTYPE}=="usb_device", ACTION=="add", SUBSYSTEM=="usb", ATTR{idVendor}=="05ac", ATTR{idProduct}=="12[9a][0-9a-f]", RUN+="/usr/bin/ipad_charge"
+ENV{DEVTYPE}=="usb_device", ACTION=="remove", SUBSYSTEM=="usb", ATTR{idVendor}=="05ac", ATTR{idProduct}=="12[9a][0-9a-f]", RUN+="/usr/bin/ipad_charge --off"

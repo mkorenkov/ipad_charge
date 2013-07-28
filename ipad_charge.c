@@ -37,17 +37,17 @@ int set_charging_mode(libusb_device *dev, bool enable) {
 	struct libusb_device_handle *dev_handle;
 
 	if ((ret = libusb_open(dev, &dev_handle)) < 0) {
-		fprintf(stderr, "ipad_charge: unable to open device: error %d\n", ret);
+		ERROR("unable to open device: error %d\n", ret);
 		return ret;
 	}
 
 	if ((ret = libusb_claim_interface(dev_handle, 0)) < 0) {
-		fprintf(stderr, "ipad_charge: unable to claim interface: error %d\n", ret);
+		ERROR("unable to claim interface: error %d\n", ret);
 		goto out_close;
 	}
 
 	if ((ret = libusb_control_transfer(dev_handle, CTRL_OUT, 0x40, 0x6400, enable ? 0x6400 : 0, NULL, 0, 2000)) < 0) {
-		fprintf(stderr, "ipad_charge: unable to send command: error %d\n", ret);
+		ERROR("unable to send command: error %d\n", ret);
 		goto out_release;
 	}
 	
@@ -104,7 +104,7 @@ int main(int argc, char *argv[]) {
                         version();
                         exit(0);
                 default:
-                        fprintf(stderr, "Try '%s --help' for more information.\n", argv[0]);
+                        ERROR("Try '%s --help' for more information.\n", argv[0]);
                         exit(100);
                 }
         }
@@ -115,13 +115,13 @@ int main(int argc, char *argv[]) {
 	}
 
 	if (libusb_init(NULL) < 0) {
-		fprintf(stderr, "ipad_charge: failed to initialise libusb\n");
+		ERROR("failed to initialise libusb\n");
 		exit(1);
 	}
 
 	libusb_device **devs;
 	if (libusb_get_device_list(NULL, &devs) < 0) {
-		fprintf(stderr, "ipad_charge: unable to enumerate USB devices\n");
+		ERROR("unable to enumerate USB devices\n");
 		ret = 2;
 		goto out_exit;
 	}
@@ -134,7 +134,7 @@ int main(int argc, char *argv[]) {
 			if (libusb_get_bus_number(dev) == busnum &&
 			    libusb_get_device_address(dev) == devnum) {
 			    	if (set_charging_mode(dev, enable) < 0)
-			    		fprintf(stderr, "ipad_charge: error setting charge mode\n");
+			    		ERROR("error setting charge mode\n");
 				else
 					count++;
 				break;
@@ -145,7 +145,7 @@ int main(int argc, char *argv[]) {
 		while ((dev = devs[i++]) != NULL) {
 			struct libusb_device_descriptor desc;
 			if ((ret = libusb_get_device_descriptor(dev, &desc)) < 0) {
-				fprintf(stderr, "ipad_charge: failed to get device descriptor: error %d\n", ret);
+				ERROR("failed to get device descriptor: error %d\n", ret);
 				continue;
 			}
 			if (desc.idVendor == VENDOR_APPLE && (desc.idProduct == PRODUCT_IPAD1
@@ -166,7 +166,7 @@ int main(int argc, char *argv[]) {
 					|| desc.idProduct == PRODUCT_IPAD4)) {
 
 				if (set_charging_mode(dev, enable) < 0)
-					fprintf(stderr, "ipad_charge: error setting charge mode\n");
+					ERROR("error setting charge mode\n");
 				else
 					count++;
 			}
@@ -174,7 +174,7 @@ int main(int argc, char *argv[]) {
 	}
 
 	if (count < 1) {
-		fprintf(stderr, "ipad_charge: no such device or an error occured\n");
+		ERROR("no such device or an error occured\n");
 		ret = 3;
 	} else
 		ret = 0;

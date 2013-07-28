@@ -28,6 +28,10 @@
 #define PRODUCT_IPHONE_4S 0x12a0
 #define PRODUCT_IPHONE_5 0x12a8
 
+#define ERROR(fmt, ...)	do {	\
+	fprintf(stderr, "ipad_charge: %s#%d: " fmt, __func__, __LINE__, ## __VA_ARGS__); \
+} while (0)
+
 int set_charging_mode(libusb_device *dev, bool enable) {
 	int ret;
 	struct libusb_device_handle *dev_handle;

@@ -42,7 +42,11 @@ int set_charging_mode(libusb_device *dev, bool enable) {
 		goto out_close;
 	}
 
-	if ((ret = libusb_control_transfer(dev_handle, CTRL_OUT, 0x40, 0x6400, enable ? 0x6400 : 0, NULL, 0, 2000)) < 0) {
+	// the 3rd and 4th numbers are the extra current in mA that the Apple device may draw in suspend state.
+	// Originally, the 4th was 0x6400, or 25600mA. I believe this was a bug and they meant 0x640, or 1600 mA which would be the max
+	// for the MFi spec. Also the typical values for the 3nd listed in the MFi spec are 0, 100, 500 so I chose 500 for that.
+	// And changed it to decimal to be clearer.
+	if ((ret = libusb_control_transfer(dev_handle, CTRL_OUT, 0x40, 500, enable ? 1600 : 0, NULL, 0, 2000)) < 0) {
 		fprintf(stderr, "ipad_charge: unable to send command: error %d\n", ret);
 		goto out_release;
 	}

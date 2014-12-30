@@ -79,7 +79,7 @@ void help(char *progname) {
 	printf("  -V, --version\t\t\tdisplay version information and exit\n");
 	printf("\nExamples:\n");
 	printf("  ipad_charge\t\t\t\t\tenable charging on all connected iPads\n");
-	printf("  BUSNUM=004 DEVNUM=014 ipad_charge -off\tdisable charging on iPad connected on bus 4, device 14\n");
+	printf("  BUS=004 DEV=014 ipad_charge -off\tdisable charging on iPad connected on bus 4, device 14\n");
 }
 
 void version() {
@@ -118,9 +118,9 @@ int main(int argc, char *argv[]) {
                 }
         }
 
-	if (getenv("BUSNUM") && getenv("DEVNUM")) {
-		busnum = atoi(getenv("BUSNUM"));
-		devnum = atoi(getenv("DEVNUM"));
+	if (getenv("BUS") && getenv("DEV")) {
+		busnum = atoi(getenv("BUS"));
+		devnum = atoi(getenv("DEV"));
 	}
 
 	if (libusb_init(NULL) < 0) {
@@ -137,7 +137,7 @@ int main(int argc, char *argv[]) {
 
 	libusb_device *dev;
 	int i = 0, count = 0;
-	/* if BUSNUM and DEVNUM were specified (by udev), find device by address */
+	/* if BUSNUM and DEVNUM were specified by user, find device by address */
 	if (busnum && devnum) {
 		while ((dev = devs[i++]) != NULL) {
 			if (libusb_get_bus_number(dev) == busnum &&
@@ -149,7 +149,7 @@ int main(int argc, char *argv[]) {
 				break;
 			}
 		}
-	/* otherwise apply to all devices */
+	/* otherwise find and apply to all devices */
 	} else {
 		while ((dev = devs[i++]) != NULL) {
 			struct libusb_device_descriptor desc;
@@ -165,6 +165,7 @@ int main(int argc, char *argv[]) {
 					|| desc.idProduct == PRODUCT_IPAD3
 					|| desc.idProduct == PRODUCT_IPAD3_4G
           || desc.idProduct == PRODUCT_IPAD4_AIR_AIR2_MINI)) {
+
 				if (set_charging_mode(dev, enable, ADDITIONAL_VALUE_IPAD) < 0)
 					fprintf(stderr, "ipad_charge: error setting charge mode\n");
 				else

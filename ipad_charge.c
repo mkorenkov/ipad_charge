@@ -34,11 +34,13 @@ int set_charging_mode(libusb_device *dev, bool enable) {
 
 	if ((ret = libusb_open(dev, &dev_handle)) < 0) {
 		fprintf(stderr, "ipad_charge: unable to open device: error %d\n", ret);
+		fprintf(stderr, "ipad_charge: %s\n", libusb_strerror(ret));
 		return ret;
 	}
 
 	if ((ret = libusb_claim_interface(dev_handle, 0)) < 0) {
 		fprintf(stderr, "ipad_charge: unable to claim interface: error %d\n", ret);
+		fprintf(stderr, "ipad_charge: %s\n", libusb_strerror(ret));
 		goto out_close;
 	}
 
@@ -48,6 +50,7 @@ int set_charging_mode(libusb_device *dev, bool enable) {
 	// And changed it to decimal to be clearer.
 	if ((ret = libusb_control_transfer(dev_handle, CTRL_OUT, 0x40, 500, enable ? 1600 : 0, NULL, 0, 2000)) < 0) {
 		fprintf(stderr, "ipad_charge: unable to send command: error %d\n", ret);
+		fprintf(stderr, "ipad_charge: %s\n", libusb_strerror(ret));
 		goto out_release;
 	}
 	
@@ -146,6 +149,7 @@ int main(int argc, char *argv[]) {
 			struct libusb_device_descriptor desc;
 			if ((ret = libusb_get_device_descriptor(dev, &desc)) < 0) {
 				fprintf(stderr, "ipad_charge: failed to get device descriptor: error %d\n", ret);
+				fprintf(stderr, "ipad_charge: %s\n", libusb_strerror(ret));
 				continue;
 			}
 			if (desc.idVendor == VENDOR_APPLE && (desc.idProduct == PRODUCT_IPAD1

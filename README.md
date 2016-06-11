@@ -16,6 +16,7 @@ Supported devices:
 * iPhone 4
 * iPhone 4S
 * iPhone 5
+* iPhone 6
 
 Requirements:
 -------------

@@ -33,31 +33,31 @@ int set_charging_mode(libusb_device *dev, bool enable) {
 	struct libusb_device_handle *dev_handle;
 
 	if ((ret = libusb_open(dev, &dev_handle)) < 0) {
-		fprintf(stderr, "ipad_charge: unable to open device: error %d\n", ret);
-		fprintf(stderr, "ipad_charge: %s\n", libusb_strerror(ret));
+		fprintf(stderr, "ipad_charge: Unable to open device: error %d [%s]\n", ret, libusb_strerror(ret));
 		return ret;
 	}
 
-	// Resource Busy issue is caused because kernel is attached to device, so enable auto detach
+    fprintf(stderr, "ipad_charge: Opened device\n");
+    // Resource Busy issue is caused because kernel is attached to device, so enable auto detach
 	if ((ret = libusb_set_auto_detach_kernel_driver(dev_handle, 1)) < 0) {
-		fprintf(stderr, "ipad_charge: set auto detach failed: error %d\n", ret);
-		fprintf(stderr, "ipad_charge: %s\n", libusb_strerror(ret));
-		return ret;
+		fprintf(stderr, "ipad_charge: Set auto detach failed: error %d [%s]\n", ret, libusb_strerror(ret));
+        goto out_close;
 	}
+    fprintf(stderr, "ipad_charge: Set device to auto detach\n");
 
-	int bInterfaceNumber = 0;
+    int bInterfaceNumber = 0;
 	// Original code assumes the bInterfaceNumber is always 0, for me it turned out to be 2.
 	// You can use lsusb to find out which interface numbers are available.
 	if ((ret = libusb_claim_interface(dev_handle, bInterfaceNumber)) < 0) {
-		fprintf(stderr, "ipad_charge: unable to claim interface 0: error %d\n", ret);
-		fprintf(stderr, "ipad_charge: %s\n", libusb_strerror(ret));
+        int retFor0 = ret;
 		bInterfaceNumber = 2;
 		if ((ret = libusb_claim_interface(dev_handle, 2)) < 0) {
-			fprintf(stderr, "ipad_charge: unable to claim interface 2: error %d\n", ret);
-			fprintf(stderr, "ipad_charge: %s\n", libusb_strerror(ret));
+            fprintf(stderr, "ipad_charge: Unable to claim interface 0: error %d [%s]\n", retFor0, libusb_strerror(retFor0));
+			fprintf(stderr, "ipad_charge: Unable to claim interface 2: error %d [%s]\n", ret, libusb_strerror(ret));
 			goto out_close;
 		}
-	}
+    }
+    fprintf(stderr, "ipad_charge: Claimed interface %d\n", bInterfaceNumber);
 
 
 	// the 3rd and 4th numbers are the extra current in mA that the Apple device may draw in suspend state.
@@ -65,8 +65,7 @@ int set_charging_mode(libusb_device *dev, bool enable) {
 	// for the MFi spec. Also the typical values for the 3nd listed in the MFi spec are 0, 100, 500 so I chose 500 for that.
 	// And changed it to decimal to be clearer.
 	if ((ret = libusb_control_transfer(dev_handle, CTRL_OUT, 0x40, 500, enable ? 1600 : 0, NULL, 0, 2000)) < 0) {
-		fprintf(stderr, "ipad_charge: unable to send command: error %d\n", ret);
-		fprintf(stderr, "ipad_charge: %s\n", libusb_strerror(ret));
+		fprintf(stderr, "ipad_charge: Unable to send command: error %d [%s]\n", ret, libusb_strerror(ret));
 		goto out_release;
 	}
 	
@@ -196,9 +195,10 @@ int main(int argc, char *argv[]) {
 	if (count < 1) {
 		fprintf(stderr, "ipad_charge: no such device or an error occured\n");
 		ret = 3;
-	} else
-		ret = 0;
-
+	} else {
+        fprintf(stderr, "ipad_charge: Charging %d devices\n", count);
+        ret = 0;
+    }
 	libusb_free_device_list(devs, 1);
 out_exit:
 	libusb_exit(NULL);

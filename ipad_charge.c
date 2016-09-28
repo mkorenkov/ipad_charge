@@ -38,11 +38,20 @@ int set_charging_mode(libusb_device *dev, bool enable) {
 		return ret;
 	}
 
-	if ((ret = libusb_claim_interface(dev_handle, 0)) < 0) {
-		fprintf(stderr, "ipad_charge: unable to claim interface: error %d\n", ret);
-		fprintf(stderr, "ipad_charge: %s\n", libusb_strerror(ret));
-		goto out_close;
-	}
+        // Resource Busy issue is caused because kernel is attached to device, so enable auto detach
+        if ((ret = libusb_set_auto_detach_kernel_driver(dev_handle, 1)) < 0) {
+                fprintf(stderr, "ipad_charge: set auto detach failed: error %d\n", ret);
+                fprintf(stderr, "ipad_charge: %s\n", libusb_strerror(ret));
+                return ret;
+        }
+
+        // Original code assumes the bInterfaceNumber is always 0, for me it turned out to be 2.
+        // You can use lsusb to find out which interface numbers are available.
+        if ((ret = libusb_claim_interface(dev_handle, 2)) < 0) {
+                fprintf(stderr, "ipad_charge: unable to claim interface: error %d\n", ret);
+                fprintf(stderr, "ipad_charge: %s\n", libusb_strerror(ret));
+                goto out_close;
+        }
 
 	// the 3rd and 4th numbers are the extra current in mA that the Apple device may draw in suspend state.
 	// Originally, the 4th was 0x6400, or 25600mA. I believe this was a bug and they meant 0x640, or 1600 mA which would be the max
@@ -57,7 +66,7 @@ int set_charging_mode(libusb_device *dev, bool enable) {
 	ret = 0;
 
 out_release:
-	libusb_release_interface(dev_handle, 0);
+	libusb_release_interface(dev_handle, 2);
 out_close:
 	libusb_close(dev_handle);
 
@@ -168,7 +177,7 @@ int main(int argc, char *argv[]) {
 					|| desc.idProduct == PRODUCT_IPHONE_4S
 					|| desc.idProduct == PRODUCT_IPHONE_5
 					|| desc.idProduct == PRODUCT_IPAD4)) {
-
+				fprintf(stdout, "ipad_charge: Found iPad (bus number= %d, port = %d, address = %d)\n", libusb_get_bus_number(dev), libusb_get_port_number(dev), libusb_get_device_address(dev));
 				if (set_charging_mode(dev, enable) < 0)
 					fprintf(stderr, "ipad_charge: error setting charge mode\n");
 				else

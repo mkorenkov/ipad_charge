@@ -1,0 +1,2 @@
+ipad_charge usr/bin/
+95-ipad_charge.rules lib/udev/rules.d/

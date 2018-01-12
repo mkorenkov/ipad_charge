@@ -1,5 +1,36 @@
+CFLAGS ?= -O2
 ipad_charge: ipad_charge.c
-	gcc -Wall -Wextra ipad_charge.c -lusb-1.0 -o ipad_charge
+	gcc \
+		-fstrict-aliasing \
+		-fstack-protector \
+		-Werror \
+		-Wstack-protector \
+		-Wno-multichar \
+		-Wimplicit-fallthrough \
+		-Wduplicated-branches \
+		-Wduplicated-cond \
+		-Wfloat-equal \
+		-Wunused-macros \
+		-Wbad-function-cast \
+		-Wcast-qual \
+		-Wmisleading-indentation \
+		-Wall \
+		-Wextra \
+		-Wuninitialized \
+		-Wconversion \
+		-Wlogical-op \
+		-Wlogical-not-parentheses \
+		-Waggregate-return \
+		-Wdangling-else \
+		-Wunused-parameter \
+		-std=gnu1x \
+		-pedantic \
+		-pedantic-errors \
+		-Wswitch-default \
+		-Wswitch-enum \
+		-Wswitch-bool \
+		$(CFLAGS) \
+			ipad_charge.c -lusb-1.0 -o ipad_charge
 
 install: ipad_charge
 	install -o root -g root -m 755 -s ipad_charge /usr/bin/

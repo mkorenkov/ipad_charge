@@ -38,7 +38,7 @@
 #define PRODUCT_IPHONE_4S		0x12a0
 #define PRODUCT_IPHONE_5		0x12a8
 
-int set_charging_mode(libusb_device *dev, bool enable) {
+int set_charging_mode(libusb_device *dev, bool enable, bool wait_for_usbmuxd) {
 	int ret;
 	struct libusb_device_handle *dev_handle;
 
@@ -52,6 +52,31 @@ int set_charging_mode(libusb_device *dev, bool enable) {
 		fprintf(stderr, "ipad_charge: unable to claim interface: error %d\n", ret);
 		fprintf(stderr, "ipad_charge: %s\n", libusb_strerror(ret));
 		goto out_close;
+	}
+
+	// usbmuxd udev rule sets bConfigurationValue to 0, and it becomes 1 after usbmuxd is loaded
+	if (wait_for_usbmuxd) {
+		struct libusb_config_descriptor *config;
+		uint8_t bConfigurationValue =  0;
+		const unsigned int max_tries = 10;
+		unsigned int tries;
+
+		for (tries = 0; bConfigurationValue == 0 && tries < max_tries; tries++) {
+			ret = libusb_get_active_config_descriptor(dev, &config);
+			if (ret != 0) {
+				syslog(LOG_ERR, "ipad_charge: %s", libusb_strerror(ret));
+				libusb_free_config_descriptor(config);
+				goto out_release;
+			}
+
+			bConfigurationValue = config->bConfigurationValue;
+			libusb_free_config_descriptor(config);
+
+			if (bConfigurationValue == 0) {
+				syslog(LOG_INFO, "Waiting for usbmuxd (attempt %u out of %u)", tries + 1, max_tries);
+				sleep(2);
+			}
+		}
 	}
 
 	// the 4th and 5th numbers are the extra current in mA that the Apple device may draw in suspend state.
@@ -91,6 +116,7 @@ void help(char *progname) {
 	printf("  -0, --off\t\t\tdisable charging instead of enabling it\n");
 	printf("  -h, --help\t\t\tdisplay this help and exit\n");
 	printf("  -V, --version\t\t\tdisplay version information and exit\n");
+	printf("  -u, --usbmuxd\t\t\twait for usbmuxd to active (wait for bConfigurationValue to become 1)\n");
 	printf("\nExamples:\n");
 	printf("  ipad_charge\t\t\t\t\tenable charging on all connected iPads\n");
 	printf("  BUSNUM=004 DEVNUM=014 ipad_charge -off\tdisable charging on iPad connected on bus 4, device 14\n");
@@ -104,21 +130,23 @@ void version() {
 
 int main(int argc, char *argv[]) {
 	int ret, devnum = 0, busnum = 0;
-	bool enable = 1;
+	bool enable = true;
+	bool wait_for_usbmuxd = false;
 
 	while (1) {
 		struct option long_options[] = {
 			{ .name = "off",	.has_arg = 0, .val = '0' },
 			{ .name = "help",	.has_arg = 0, .val = 'h' },
 			{ .name = "version",	.has_arg = 0, .val = 'V' },
+			{ .name = "usbmuxd",	.has_arg = 0, .val = 'u' },
 			{ .name = NULL },
 		};
-		int opt = getopt_long(argc, argv, "0hV", long_options, NULL);
+		int opt = getopt_long(argc, argv, "0hVu", long_options, NULL);
 		if (opt < 0)
 			break;
 		switch (opt) {
 			case '0':
-				enable = 0;
+				enable = false;
 				break;
 			case 'h':
 				help(argv[0]);
@@ -126,6 +154,9 @@ int main(int argc, char *argv[]) {
 			case 'V':
 				version();
 				exit(0);
+			case 'u':
+				wait_for_usbmuxd = true;
+				break;
 			default:
 				fprintf(stderr, "Try '%s --help' for more information.\n", argv[0]);
 				exit(100);
@@ -161,7 +192,7 @@ int main(int argc, char *argv[]) {
 		while ((dev = devs[i++]) != NULL) {
 			if (libusb_get_bus_number(dev) == busnum &&
 			    libusb_get_device_address(dev) == devnum) {
-			    	if (set_charging_mode(dev, enable) < 0) {
+			    	if (set_charging_mode(dev, enable, wait_for_usbmuxd) < 0) {
 						fprintf(stderr, "ipad_charge: error setting charge mode\n");
 						syslog(LOG_ERR, "error setting charge mode");
 					}
@@ -195,7 +226,7 @@ int main(int argc, char *argv[]) {
 					|| desc.idProduct == PRODUCT_IPHONE_4S
 					|| desc.idProduct == PRODUCT_IPHONE_5
 					|| desc.idProduct == PRODUCT_IPAD4)) {
-				if (set_charging_mode(dev, enable) < 0) {
+				if (set_charging_mode(dev, enable, wait_for_usbmuxd) < 0) {
 					fprintf(stderr, "ipad_charge: error setting charge mode\n");
 					syslog(LOG_ERR, "error setting charge mode");
                 }

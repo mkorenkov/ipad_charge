@@ -1,24 +1,21 @@
 CFLAGS ?= -O2
+CC ?= cc
 ipad_charge: ipad_charge.c
-	gcc \
+	$(CC) \
 		-fstrict-aliasing \
 		-fstack-protector \
 		-Werror \
 		-Wstack-protector \
 		-Wno-multichar \
 		-Wimplicit-fallthrough \
-		-Wduplicated-branches \
-		-Wduplicated-cond \
 		-Wfloat-equal \
 		-Wunused-macros \
 		-Wbad-function-cast \
 		-Wcast-qual \
-		-Wmisleading-indentation \
 		-Wall \
 		-Wextra \
 		-Wuninitialized \
 		-Wconversion \
-		-Wlogical-op \
 		-Wlogical-not-parentheses \
 		-Waggregate-return \
 		-Wdangling-else \

@@ -36,6 +36,7 @@
 
 #define ADDITIONAL_VALUE_DEFAULT 1600
 
+int forced_current = -1;
 
 int set_charging_mode(libusb_device *dev, bool enable, int additional_value) {
 	int ret;
@@ -57,6 +58,7 @@ int set_charging_mode(libusb_device *dev, bool enable, int additional_value) {
 	// Originally, the 4th was 0x6400, or 25600mA. I believe this was a bug and they meant 0x640, or 1600 mA which would be the max
 	// for the MFi spec. Also the typical values for the 3nd listed in the MFi spec are 0, 100, 500 so I chose 500 for that.
 	// And changed it to decimal to be clearer.
+	if (forced_current > 0) additional_value = forced_current - 500;
 	if ((ret = libusb_control_transfer(dev_handle, CTRL_OUT, 0x40, 500, enable ? additional_value : 0, NULL, 0, 2000)) < 0) {
 		fprintf(stderr, "ipad_charge: unable to send command: error %d\n", ret);
 		fprintf(stderr, "ipad_charge: %s\n", libusb_strerror(ret));
@@ -78,6 +80,8 @@ void help(char *progname) {
 	printf("iPad USB charging control utility\n\n");
 	printf("Available OPTIONs:\n");
 	printf("  -0, --off\t\t\tdisable charging instead of enabling it\n");
+	printf("  -I, --current\t\t\tset the charging current manually\n");
+	printf("               \t\t\t(the default varies according to device type)\n");
 	printf("  -h, --help\t\t\tdisplay this help and exit\n");
 	printf("  -V, --version\t\t\tdisplay version information and exit\n");
 	printf("\nExamples:\n");
@@ -98,17 +102,21 @@ int main(int argc, char *argv[]) {
 	while (1) {
                 struct option long_options[] = {
                         { .name = "off",	.has_arg = 0, .val = '0' },
+                        { .name = "current",	.has_arg = 1, .val = 'I' },
                         { .name = "help",	.has_arg = 0, .val = 'h' },
                         { .name = "version",	.has_arg = 0, .val = 'V' },
                         { .name = NULL },
                 };
-                int opt = getopt_long(argc, argv, "0hV", long_options, NULL);
+                int opt = getopt_long(argc, argv, "0hVI:", long_options, NULL);
                 if (opt < 0)
                         break;
                 switch (opt) {
                 case '0':
                         enable = 0;
                         break;
+                case 'I':
+                				forced_current = atoi(optarg);
+                				break;
                 case 'h':
                         help(argv[0]);
                         exit(0);

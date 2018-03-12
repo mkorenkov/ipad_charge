@@ -1,5 +1,8 @@
+CC ?= gcc
+CFLAGS ?= -Wall -Wextra
+
 ipad_charge: ipad_charge.c
-	gcc -Wall -Wextra ipad_charge.c -lusb-1.0 -o ipad_charge
+	$(CC) $(CFLAGS) ipad_charge.c -lusb-1.0 -o ipad_charge
 
 install: ipad_charge
 	install -o root -g root -m 755 -s ipad_charge /usr/bin/

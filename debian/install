@@ -1,2 +1,3 @@
 ipad_charge usr/bin/
-95-ipad_charge.rules lib/udev/rules.d/
+debian/95-ipad_charge.rules lib/udev/rules.d/
+debian/ipad-charge.service lib/systemd/system/

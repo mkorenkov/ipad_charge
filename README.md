@@ -8,7 +8,17 @@ Supported devices:
 * iPad2
 * iPad3
 * iPad4
-* iPad Mini
+* iPad mini
+* iPad Air
+* iPad mini 2
+* iPad Air 2
+* iPad mini 3
+* iPad mini 4
+* iPad 5
+* iPad 6
+* iPad Air 3
+* iPad mini 5
+* iPad 7
 * iPod Touch 2G
 * iPod Touch 3G
 * iPod Touch 4G
@@ -16,6 +26,10 @@ Supported devices:
 * iPhone 4
 * iPhone 4S
 * iPhone 5
+* iPhone 5C
+* iPhone 5S
+* iPhone 6
+* iPhone SE
 
 Requirements:
 -------------

@@ -168,7 +168,8 @@ int main(int argc, char *argv[]) {
 					|| desc.idProduct == PRODUCT_IPAD2_3GV
 					|| desc.idProduct == PRODUCT_IPAD3
 					|| desc.idProduct == PRODUCT_IPAD3_4G
-          || desc.idProduct == PRODUCT_IPAD4_AIR_AIR2_MINI)) {
+					|| desc.idProduct == PRODUCT_IPAD4_AIR_AIR2_MINI
+					|| desc.idProduct == PRODUCT_IPHONE_5_5S_6)) {
 
 				if (set_charging_mode(dev, enable, ADDITIONAL_VALUE_IPAD) < 0)
 					fprintf(stderr, "ipad_charge: error setting charge mode\n");
@@ -181,8 +182,7 @@ int main(int argc, char *argv[]) {
 					|| desc.idProduct == PRODUCT_IPOD_TOUCH_3G
 					|| desc.idProduct == PRODUCT_IPHONE_4_CDMA
 					|| desc.idProduct == PRODUCT_IPOD_TOUCH_4G
-					|| desc.idProduct == PRODUCT_IPHONE_4S
-					|| desc.idProduct == PRODUCT_IPHONE_5_5S_6)) {
+					|| desc.idProduct == PRODUCT_IPHONE_4S)) {
 
 				if (set_charging_mode(dev, enable, ADDITIONAL_VALUE_IPHONE) < 0)
 					fprintf(stderr, "ipad_charge: error setting charge mode\n");

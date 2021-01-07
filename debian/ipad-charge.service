@@ -1,0 +1,11 @@
+[Unit]
+Description=Apply ipad-charge to devices
+
+[Service]
+Type=oneshot
+ExecStartPre=-/bin/sleep 2
+ExecStart=-/usr/bin/ipad_charge
+NonBlocking=true
+
+[Install]
+WantedBy=multi-user.target

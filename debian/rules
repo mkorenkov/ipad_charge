@@ -1,0 +1,12 @@
+#!/usr/bin/make -f
+
+#export DH_VERBOSE = 1
+export DEB_BUILD_MAINT_OPTIONS = hardening=+all
+
+%:
+	dh $@ 
+
+override_dh_auto_build:
+	${CC} ${CPPFLAGS} ${CFLAGS} ipad_charge.c -lusb-1.0 -o ipad_charge
+
+override_dh_auto_install:

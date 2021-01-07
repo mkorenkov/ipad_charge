@@ -1,0 +1,3 @@
+ENV{DEVTYPE}=="usb_device", ACTION=="add", SUBSYSTEM=="usb", ATTR{idVendor}=="05ac", ATTR{idProduct}=="129[0-9abcef]", RUN+="/bin/systemctl restart --no-block ipad-charge.service"
+ENV{DEVTYPE}=="usb_device", ACTION=="add", SUBSYSTEM=="usb", ATTR{idVendor}=="05ac", ATTR{idProduct}=="12a[0-9ab]", RUN+="/bin/systemctl restart --no-block ipad-charge.service"
+ENV{DEVTYPE}=="usb_device", ACTION=="add", SUBSYSTEM=="usb", ATTR{idVendor}=="0fca", ATTR{idProduct}=="8014", RUN+="/bin/systemctl restart --no-block ipad-charge.service"
